@@ -1,6 +1,13 @@
 use std::error::Error;
 
 use clap::{Parser, ValueEnum};
+use serde::Deserialize;
+
+use crate::to_excl::to;
+
+mod to_excl;
+mod bean;
+
 
 #[derive(Parser, Debug)]
 #[command(name = "Conversion")]
@@ -23,8 +30,8 @@ pub struct Cli {
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
 enum Mode {
-    In,
-    Out,
+    To,
+    From,
     Merge,
 }
 
@@ -36,14 +43,20 @@ enum Platform {
     Java,
 }
 
+pub fn run(cli: Cli) -> Result<(), Box<dyn Error>> {
+    return match cli.mode {
+        Mode::To => to(cli),
+        Mode::From => from(cli),
+        Mode::Merge => merge(cli),
+    };
+}
 
-
-
-
-pub fn run(config: Cli) -> Result<(), Box<dyn Error>> {
-
-    // println!(" {name}");
-    let current_dir = env!("CARGO_MANIFEST_DIR");
-    println!("a: {:?}", current_dir);
+fn from(cli: Cli) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
+
+fn merge(cli: Cli) -> Result<(), Box<dyn Error>> {
+    Ok(())
+}
+
+

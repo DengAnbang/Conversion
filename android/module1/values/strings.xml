@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="key_test_1">测试1</string>
+    <string name="key_test_2">测试2</string>
+    <string name="key_test_3"/>
+</resources>
