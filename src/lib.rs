@@ -1,6 +1,7 @@
 use std::error::Error;
 
 use clap::{Parser, ValueEnum};
+use clap::builder::Str;
 use serde::Deserialize;
 
 use crate::to_excl::to;
@@ -15,41 +16,37 @@ mod bean;
 #[command(version)]
 #[command(about = "哈哈哈", long_about = None)]
 pub struct Cli {
-    ///[to]生成xlsx,[from]通过xlsx生成对应的文件,[merge]合并xlsx
+    ///需要转换成xlsx的文件路径,可以是多个文件
     #[arg(value_enum, short, long, ignore_case = true)]
-    mode: Mode,
-    #[arg(value_enum, short, long, ignore_case = true)]
-    platform: Option<Platform>,
+    to_xlsx: Vec<String>,
 
-    ///需要转换成对应平台的文件路径
-    #[arg(short, long, requires = "platform", ignore_case = true)]
-    file_path: Option<String>,
+    ///将xlsx的文件还原成对应平台的数据,输入xlsx的文件的路径
+    #[arg(value_enum, short, long, requires = "reference_path", ignore_case = true)]
+    from_xlsx: Option<String>,
+
+    ///需要合并的xlsx的文件路径
+    #[arg(value_enum, short, long, ignore_case = true)]
+    merge_xlsx: Vec<String>,
+
     ///需要参考的文件路径
-    #[arg(short, long, requires = "file_path", ignore_case = true)]
+    #[arg(short, long, requires = "from_xlsx", ignore_case = true)]
     reference_path: Option<String>,
+
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
-enum Mode {
-    To,
-    From,
-    Merge,
-}
-
-// 注意要配置以下衍生宏
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
-enum Platform {
-    Ios,
-    Android,
-    Java,
-}
 
 pub fn run(cli: Cli) -> Result<(), Box<dyn Error>> {
-    return match cli.mode {
-        Mode::To => to(cli),
-        Mode::From => from(cli),
-        Mode::Merge => merge(cli),
-    };
+    if cli.to_xlsx.len() > 0 {
+        return to(cli.to_xlsx);
+    }
+
+
+    // return match cli.mode {
+    //     Mode::To => to(cli),
+    //     Mode::From => from(cli),
+    //     Mode::Merge => merge(cli),
+    // };
+    Ok(())
 }
 
 fn from(cli: Cli) -> Result<(), Box<dyn Error>> {
