@@ -41,8 +41,8 @@ fn android() -> Result<(), Box<dyn Error>> {
     worksheet.set_column_width(0, 30).ok();
     let mut row = 0;
     // 写入表头
-    worksheet.write_string(row, 0, "Key").expect("Failed to write header");
-    worksheet.write_string(row, 1, "Value").expect("Failed to write header");
+    worksheet.write_string(row, 0, "此列不用修改").expect("Failed to write header");
+    worksheet.write_string(row, 1, "此列为待翻译").expect("Failed to write header");
     row = row + 1;
     for i in &file_paths {
         // 解析 XML 文件

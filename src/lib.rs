@@ -15,11 +15,12 @@ mod bean;
 #[command(version)]
 #[command(about = "哈哈哈", long_about = None)]
 pub struct Cli {
-    ///[in]生成xml,[out]通过xml生成对应的文件,[merge]合并xml
+    ///[to]生成xlsx,[from]通过xlsx生成对应的文件,[merge]合并xlsx
     #[arg(value_enum, short, long, ignore_case = true)]
     mode: Mode,
     #[arg(value_enum, short, long, ignore_case = true)]
     platform: Option<Platform>,
+
     ///需要转换成对应平台的文件路径
     #[arg(short, long, requires = "platform", ignore_case = true)]
     file_path: Option<String>,
