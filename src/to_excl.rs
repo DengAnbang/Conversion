@@ -1,8 +1,8 @@
-use std::{env, fs};
+use std::{env, io};
 use std::error::Error;
 use std::fs::{File, remove_file};
-use std::io::BufReader;
-use std::path::{Path, PathBuf};
+use std::io::{BufRead, BufReader};
+use std::path::Path;
 
 use rust_xlsxwriter::{RowNum, Workbook, Worksheet};
 use serde_xml_rs::from_reader;
@@ -27,23 +27,109 @@ pub fn to(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
             return Err(Box::from(format!("File does not exist:{:?}", path)));
         }
     }
-    return android(file_paths);
+    return match suffix.unwrap() {
+        "xml" => android(file_paths),
+        "strings" => ios(file_paths),
+        "properties" => java(file_paths),
+        _ => {
+            return Err(Box::from("暂不支持的文件格式!"));
+        }
+    };
 }
 
-fn java() -> Result<(), Box<dyn Error>> {
-    todo!()
+fn java(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
+    // 创建 XLSX 文件
+    let mut workbook = Workbook::new();
+    let worksheet = workbook.add_worksheet();
+    worksheet.set_column_width(0, 30).ok();
+    let mut row = 0;
+    // 写入表头
+    worksheet.write_string(row, 0, "java_key").expect("Failed to write header");
+    worksheet.write_string(row, 1, "def_value").expect("Failed to write header");
+    row = row + 1;
+    for file_path in file_paths {
+        let file = File::open(file_path)?;
+        let reader = io::BufReader::new(file);
+
+        for line in reader.lines() {
+            let line = line?;
+            let trimmed_line = line.trim();
+            if trimmed_line.is_empty() || trimmed_line.starts_with("//") {
+                continue; // Skip empty lines and comments
+            }
+
+            if let Some((key, value)) = trimmed_line.split_once('=') {
+                let key = key.trim().trim_matches('"').to_string();
+                let value = value.trim().trim_matches(';').trim_matches('"').to_string();
+                worksheet.write_string(row, 0, &key).expect("Failed to write key");
+                worksheet.write_string(row, 1, &value).expect("Failed to write value");
+                row = row + 1;
+            }
+        }
+    }
+    remove_file("to_java.xlsx").ok();
+    workbook.save("to_java.xlsx")?;
+    Ok(())
 }
 
-fn ios() -> Result<(), Box<dyn Error>> {
-    todo!()
-}
+fn ios(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
+    // 创建 XLSX 文件
+    let mut workbook = Workbook::new();
+    let worksheet = workbook.add_worksheet();
+    worksheet.set_column_width(0, 30).ok();
+    let mut row = 0;
+    // 写入表头
+    worksheet.write_string(row, 0, "ios_key").expect("Failed to write header");
+    worksheet.write_string(row, 1, "def_value").expect("Failed to write header");
+    row = row + 1;
+    for file_path in file_paths {
+        let file = File::open(file_path)?;
+        let reader = io::BufReader::new(file);
 
-fn android_auto() -> Result<(), Box<dyn Error>> {
-    let result = env::current_dir();
-    let file_paths = find_files(result.unwrap().as_path(), move |path| {
-        return path.file_name().unwrap() == "strings.xml" && path.parent().unwrap().file_name().unwrap() == "values";
-    });
-    return android(file_paths);
+        let mut key = String::new();
+        let mut value = String::new();
+        let mut in_value = false;
+
+        for line in reader.lines() {
+            let line = line?;
+            let trimmed_line = line.trim();
+
+            if trimmed_line.is_empty() || trimmed_line.starts_with("//") {
+                continue; // Skip empty lines and comments
+            }
+
+            if in_value {
+                if trimmed_line.ends_with(';') {
+                    value.push_str(&trimmed_line[..trimmed_line.len() - 1]);
+                    worksheet.write_string(row, 0, &key).expect("Failed to write key");
+                    worksheet.write_string(row, 1, &value.trim_matches('"').to_string()).expect("Failed to write value");
+                    row = row + 1;
+                    key.clear();
+                    value.clear();
+                    in_value = false;
+                } else {
+                    value.push_str(trimmed_line);
+                }
+            } else if let Some((k, v)) = trimmed_line.split_once('=') {
+                key = k.trim().trim_matches('"').to_string();
+                if v.ends_with(';') {
+                    value = v.trim().trim_matches(';').trim_matches('"').to_string();
+
+                    worksheet.write_string(row, 0, &key).expect("Failed to write key");
+                    worksheet.write_string(row, 1, &value).expect("Failed to write value");
+                    row = row + 1;
+                    key.clear();
+                    value.clear();
+                } else {
+                    value = v.trim().trim_matches('"').to_string();
+                    in_value = true;
+                }
+            }
+        }
+    }
+    remove_file("to_ios.xlsx").ok();
+    workbook.save("to_ios.xlsx")?;
+    Ok(())
 }
 
 fn android(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
@@ -53,8 +139,8 @@ fn android(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
     worksheet.set_column_width(0, 30).ok();
     let mut row = 0;
     // 写入表头
-    worksheet.write_string(row, 0, "此列不用修改").expect("Failed to write header");
-    worksheet.write_string(row, 1, "此列为待翻译").expect("Failed to write header");
+    worksheet.write_string(row, 0, "android_key").expect("Failed to write header");
+    worksheet.write_string(row, 1, "def_value").expect("Failed to write header");
     row = row + 1;
     for i in file_paths {
         // 解析 XML 文件
@@ -68,23 +154,6 @@ fn android(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
 }
 
 
-///循环遍历,找出满足条件的文件
-fn find_files(dir: &Path, check: fn(&PathBuf) -> bool) -> Vec<String> {
-    let mut result = Vec::new();
-    if dir.is_dir() {
-        for entry in fs::read_dir(dir).unwrap() {
-            let entry = entry.unwrap();
-            let path = entry.path();
-            if path.is_dir() {
-                result.extend(find_files(&path, check));
-            } else if path.is_file() && check(&path) {
-                result.push(path.to_str().unwrap().to_string());
-            }
-        }
-    }
-    result
-}
-
 fn to_excel(beans: Vec<XmlBean>, sheet: &mut Worksheet, row: RowNum) -> u32 {
     // 写入数据
     let len = beans.len() as u32;
@@ -96,7 +165,6 @@ fn to_excel(beans: Vec<XmlBean>, sheet: &mut Worksheet, row: RowNum) -> u32 {
     }
     return len;
 }
-
 
 
 

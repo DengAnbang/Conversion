@@ -58,3 +58,34 @@ fn merge(cli: Cli) -> Result<(), Box<dyn Error>> {
 }
 
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn to_xml() {
+        let result = run(crate::Cli {
+            to_xlsx: vec!["./java/module1/messages.properties".parse().unwrap(), "./java/module2/messages.properties".parse().unwrap()],
+            from_xlsx: None,
+            merge_xlsx: vec![],
+            reference_path: None,
+        });
+        assert!(result.is_ok());
+        let result = run(crate::Cli {
+            to_xlsx: vec!["./android/module1/values/strings.xml".parse().unwrap(), "./android/module2/values/strings.xml".parse().unwrap()],
+            from_xlsx: None,
+            merge_xlsx: vec![],
+            reference_path: None,
+        });
+        assert!(result.is_ok());
+        let result = run(crate::Cli {
+            to_xlsx: vec!["./ios/module1/Localizable.strings".parse().unwrap(), "./ios/module2/Localizable.strings".parse().unwrap()],
+            from_xlsx: None,
+            merge_xlsx: vec![],
+            reference_path: None,
+        });
+        assert!(result.is_ok());
+    }
+}
+
+
