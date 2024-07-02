@@ -3,13 +3,15 @@ use std::error::Error;
 use calamine::Reader;
 use clap::{Parser, ValueEnum};
 use serde::Deserialize;
+use crate::form_xlsx::form_xlsx;
 use crate::merge_xlsx::merge_xlsx;
 
-use crate::to_excl::to;
+use crate::to_xlsx::to_xlsx;
 
-mod to_excl;
+mod to_xlsx;
 mod bean;
 mod merge_xlsx;
+mod form_xlsx;
 
 
 #[derive(Parser, Debug)]
@@ -39,26 +41,15 @@ pub struct Cli {
 
 pub fn run(cli: Cli) -> Result<(), Box<dyn Error>> {
     if cli.to_xlsx.len() > 0 {
-        return to(cli.to_xlsx);
+        return to_xlsx(cli.to_xlsx);
     }
     if cli.merge_xlsx.len() > 0 {
         return merge_xlsx(cli.merge_xlsx);
     }
+    if cli.from_xlsx != None && cli.reference_path != None {
+        return form_xlsx(cli.from_xlsx.unwrap(), cli.reference_path.unwrap());
+    }
 
-
-    // return match cli.mode {
-    //     Mode::To => to(cli),
-    //     Mode::From => from(cli),
-    //     Mode::Merge => merge(cli),
-    // };
-    Ok(())
-}
-
-fn from(cli: Cli) -> Result<(), Box<dyn Error>> {
-    Ok(())
-}
-
-fn merge(cli: Cli) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
@@ -99,6 +90,19 @@ mod tests {
             from_xlsx: None,
             merge_xlsx: vec!["./to_android.xlsx".parse().unwrap(), "./to_ios.xlsx".parse().unwrap(), "./to_java.xlsx".parse().unwrap()],
             reference_path: None,
+        });
+        println!("{:?}", result);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn form_xlsx() {
+
+        let result = run(crate::Cli {
+            to_xlsx: vec![],
+            from_xlsx: Some("./merge.xlsx".parse().unwrap()),
+            merge_xlsx: vec![],
+            reference_path: Some("./to_android.xlsx".parse().unwrap()),
         });
         println!("{:?}", result);
         assert!(result.is_ok());

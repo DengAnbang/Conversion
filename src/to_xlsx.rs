@@ -9,7 +9,7 @@ use serde_xml_rs::from_reader;
 
 use crate::bean::{Platform, Resource, XmlBean};
 
-pub fn to(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
+pub fn to_xlsx(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
     let suffix = Path::new(&file_paths[0])
         .extension()
         .and_then(|s| s.to_str());
