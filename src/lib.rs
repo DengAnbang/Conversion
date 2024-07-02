@@ -96,13 +96,37 @@ mod tests {
     }
 
     #[test]
-    fn form_xlsx() {
+    fn form_xlsx_android() {
 
         let result = run(crate::Cli {
             to_xlsx: vec![],
-            from_xlsx: Some("./merge.xlsx".parse().unwrap()),
+            from_xlsx: Some("./merge_test.xlsx".parse().unwrap()),
             merge_xlsx: vec![],
             reference_path: Some("./to_android.xlsx".parse().unwrap()),
+        });
+        println!("{:?}", result);
+        assert!(result.is_ok());
+    }
+    #[test]
+    fn form_xlsx_ios() {
+
+        let result = run(crate::Cli {
+            to_xlsx: vec![],
+            from_xlsx: Some("./merge_test.xlsx".parse().unwrap()),
+            merge_xlsx: vec![],
+            reference_path: Some("./to_ios.xlsx".parse().unwrap()),
+        });
+        println!("{:?}", result);
+        assert!(result.is_ok());
+    }
+    #[test]
+    fn form_xlsx_java() {
+
+        let result = run(crate::Cli {
+            to_xlsx: vec![],
+            from_xlsx: Some("./merge_test.xlsx".parse().unwrap()),
+            merge_xlsx: vec![],
+            reference_path: Some("./to_java.xlsx".parse().unwrap()),
         });
         println!("{:?}", result);
         assert!(result.is_ok());

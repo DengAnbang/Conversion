@@ -1,5 +1,8 @@
 use std::collections::HashMap;
 use std::error::Error;
+use std::fs;
+use std::fs::{create_dir, File, remove_dir, remove_dir_all};
+use std::io::Write;
 use std::path::Path;
 
 use calamine::{DataType, open_workbook, Reader, Xlsx};
@@ -64,5 +67,55 @@ pub fn form_xlsx(from_xlsx: String, reference_path: String) -> Result<(), Box<dy
     }
     println!("{:?}", to);
 
+    return generating_files(to, platform);
+}
+
+fn generating_files(scores: Vec<Vec<XmlBean>>, platform: Platform) -> Result<(), Box<dyn Error>> {
+    return if platform == Platform::new_android() {
+        generating_android(scores)
+    } else if platform == Platform::new_ios() {
+        generating_ios(scores)
+    } else if platform == Platform::new_java() {
+        generating_java(scores)
+    } else {
+        panic!("暂不支持的文件格式!");
+    };
+}
+
+fn generating_java(scores: Vec<Vec<XmlBean>>) -> Result<(), Box<dyn Error>> {
+    remove_dir_all("./java_file").ok();
+    create_dir("./java_file").ok();
+    println!("{:?}", scores.len());
+    for score in scores {
+        let string = score.get(0).unwrap().value.clone();
+        let string1 = format!("./java_file/{}.strings", string.unwrap());
+        let mut file: File = File::create(string1)?;
+        for bean in score.iter().skip(1) {
+            let key = bean.key.clone();
+            let value = bean.value.clone().unwrap_or("".to_string());
+            file.write(format!("{}={}\n", key, value).as_ref()).unwrap();
+        }
+    }
     return Ok(());
+}
+
+fn generating_ios(scores: Vec<Vec<XmlBean>>) -> Result<(), Box<dyn Error>> {
+    remove_dir_all("./ios_file").ok();
+    create_dir("./ios_file").ok();
+    println!("{:?}", scores.len());
+    for score in scores {
+        let string = score.get(0).unwrap().value.clone();
+        let string1 = format!("./ios_file/{}.strings", string.unwrap());
+        let mut file: File = File::create(string1)?;
+        for bean in score.iter().skip(1) {
+            let key = bean.key.clone();
+            let value = bean.value.clone().unwrap_or("".to_string());
+            file.write(format!("\"{}\" = \"{}\"\n", key, value).as_ref()).unwrap();
+        }
+    }
+    return Ok(());
+}
+
+fn generating_android(scores: Vec<Vec<XmlBean>>) -> Result<(), Box<dyn Error>> {
+    todo!()
 }

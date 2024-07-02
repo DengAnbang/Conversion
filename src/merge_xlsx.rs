@@ -23,7 +23,7 @@ pub fn merge_xlsx(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
     let worksheet = workbook.add_worksheet();
     let mut row = 0;
     let mut platform: Platform=Platform::new_android();
-    worksheet.write_string(row, 0, "带翻译内容").expect("Failed to write header");
+    worksheet.write_string(row, 0, "待翻译内容").expect("Failed to write header");
     worksheet.set_column_width(0, 30).ok();
     worksheet.write_string(row, 1, "翻译好的内容(en)").expect("Failed to write header");
     worksheet.set_column_width(1, 30).ok();
@@ -58,8 +58,8 @@ pub fn merge_xlsx(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
             }
         }
     }
-    remove_file("merge.xlsx").ok();
-    workbook.save("merge.xlsx")?;
+    remove_file("../merge.xlsx").ok();
+    workbook.save("../merge.xlsx")?;
 
     return Ok(());
 }
