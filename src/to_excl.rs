@@ -1,13 +1,13 @@
-use std::{env, io};
 use std::error::Error;
 use std::fs::{File, remove_file};
+use std::io;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 
 use rust_xlsxwriter::{RowNum, Workbook, Worksheet};
 use serde_xml_rs::from_reader;
 
-use crate::bean::{Resource, XmlBean};
+use crate::bean::{Platform, Resource, XmlBean};
 
 pub fn to(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
     let suffix = Path::new(&file_paths[0])
@@ -27,24 +27,27 @@ pub fn to(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
             return Err(Box::from(format!("File does not exist:{:?}", path)));
         }
     }
-    return match suffix.unwrap() {
-        "xml" => android(file_paths),
-        "strings" => ios(file_paths),
-        "properties" => java(file_paths),
-        _ => {
-            return Err(Box::from("暂不支持的文件格式!"));
-        }
+    let platform = Platform::new_suffix(suffix.unwrap().to_string());
+    return if platform == Platform::new_android() {
+        android(file_paths)
+    } else if platform == Platform::new_ios() {
+        ios(file_paths)
+    } else if platform == Platform::new_java() {
+        java(file_paths)
+    } else {
+        panic!("暂不支持的文件格式!");
     };
 }
 
 fn java(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
+    let platform = Platform::new_java();
     // 创建 XLSX 文件
     let mut workbook = Workbook::new();
     let worksheet = workbook.add_worksheet();
     worksheet.set_column_width(0, 30).ok();
     let mut row = 0;
     // 写入表头
-    worksheet.write_string(row, 0, "java_key").expect("Failed to write header");
+    worksheet.write_string(row, 0, platform.key).expect("Failed to write header");
     worksheet.write_string(row, 1, "def_value").expect("Failed to write header");
     row = row + 1;
     for file_path in file_paths {
@@ -67,20 +70,22 @@ fn java(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
             }
         }
     }
-    remove_file("to_java.xlsx").ok();
-    workbook.save("to_java.xlsx")?;
+    remove_file(&platform.file_name).ok();
+    workbook.save(&platform.file_name)?;
     Ok(())
 }
 
 fn ios(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
+    let platform = Platform::new_ios();
     // 创建 XLSX 文件
     let mut workbook = Workbook::new();
     let worksheet = workbook.add_worksheet();
     worksheet.set_column_width(0, 30).ok();
     let mut row = 0;
     // 写入表头
-    worksheet.write_string(row, 0, "ios_key").expect("Failed to write header");
+    worksheet.write_string(row, 0, platform.key).expect("Failed to write header");
     worksheet.write_string(row, 1, "def_value").expect("Failed to write header");
+
     row = row + 1;
     for file_path in file_paths {
         let file = File::open(file_path)?;
@@ -127,19 +132,20 @@ fn ios(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
             }
         }
     }
-    remove_file("to_ios.xlsx").ok();
-    workbook.save("to_ios.xlsx")?;
+    remove_file(&platform.file_name).ok();
+    workbook.save(&platform.file_name)?;
     Ok(())
 }
 
 fn android(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
+    let platform = Platform::new_android();
     // 创建 XLSX 文件
     let mut workbook = Workbook::new();
     let worksheet = workbook.add_worksheet();
     worksheet.set_column_width(0, 30).ok();
     let mut row = 0;
     // 写入表头
-    worksheet.write_string(row, 0, "android_key").expect("Failed to write header");
+    worksheet.write_string(row, 0, platform.key).expect("Failed to write header");
     worksheet.write_string(row, 1, "def_value").expect("Failed to write header");
     row = row + 1;
     for i in file_paths {
@@ -148,8 +154,8 @@ fn android(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
         let len = to_excel(resource.strings, worksheet, row);
         row = (len + row) as RowNum
     }
-    remove_file("to_android.xlsx").ok();
-    workbook.save("to_android.xlsx")?;
+    remove_file(&platform.file_name).ok();
+    workbook.save(&platform.file_name)?;
     Ok(())
 }
 

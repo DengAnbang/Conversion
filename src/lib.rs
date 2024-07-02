@@ -1,13 +1,15 @@
 use std::error::Error;
 
+use calamine::Reader;
 use clap::{Parser, ValueEnum};
-use clap::builder::Str;
 use serde::Deserialize;
+use crate::merge_xlsx::merge_xlsx;
 
 use crate::to_excl::to;
 
 mod to_excl;
 mod bean;
+mod merge_xlsx;
 
 
 #[derive(Parser, Debug)]
@@ -39,6 +41,9 @@ pub fn run(cli: Cli) -> Result<(), Box<dyn Error>> {
     if cli.to_xlsx.len() > 0 {
         return to(cli.to_xlsx);
     }
+    if cli.merge_xlsx.len() > 0 {
+        return merge_xlsx(cli.merge_xlsx);
+    }
 
 
     // return match cli.mode {
@@ -63,7 +68,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn to_xml() {
+    fn to_xlsx() {
         let result = run(crate::Cli {
             to_xlsx: vec!["./java/module1/messages.properties".parse().unwrap(), "./java/module2/messages.properties".parse().unwrap()],
             from_xlsx: None,
@@ -84,6 +89,18 @@ mod tests {
             merge_xlsx: vec![],
             reference_path: None,
         });
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn merge_xlsx() {
+        let result = run(crate::Cli {
+            to_xlsx: vec![],
+            from_xlsx: None,
+            merge_xlsx: vec!["./to_android.xlsx".parse().unwrap(), "./to_ios.xlsx".parse().unwrap(), "./to_java.xlsx".parse().unwrap()],
+            reference_path: None,
+        });
+        println!("{:?}", result);
         assert!(result.is_ok());
     }
 }
