@@ -10,6 +10,7 @@ use serde_xml_rs::from_reader;
 use crate::bean::{Platform, Resource, XmlBean};
 
 pub fn to_xlsx(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
+
     let suffix = Path::new(&file_paths[0])
         .extension()
         .and_then(|s| s.to_str());
@@ -28,6 +29,7 @@ pub fn to_xlsx(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
         }
     }
     let platform = Platform::new_suffix(suffix.unwrap().to_string());
+    println!("生成中..");
     return if platform == Platform::new_android() {
         android(file_paths)
     } else if platform == Platform::new_ios() {

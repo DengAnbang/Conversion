@@ -58,8 +58,6 @@ pub fn form_xlsx(from_xlsx: String, reference_path: String) -> Result<(), Box<dy
     let mut to: Vec<Vec<XmlBean>> = Vec::new();
     for score in 0..scores.len() {
         to.push(Vec::new());
-
-
         let option = &scores[score];
         to[score].push(XmlBean { key: platform.key.clone(), value: option.get(&platform.key).unwrap().clone() });
         for r in &reference {
@@ -67,6 +65,7 @@ pub fn form_xlsx(from_xlsx: String, reference_path: String) -> Result<(), Box<dy
             to[score].push(XmlBean { key: r.clone(), value: x.clone() })
         }
     }
+    println!("生成中..");
     return generating_files(to, platform);
 }
 

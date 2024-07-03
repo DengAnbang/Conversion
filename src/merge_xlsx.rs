@@ -17,7 +17,7 @@ pub fn merge_xlsx(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
         }
     }
 
-
+    println!("合并中..");
     // 创建 XLSX 文件
     let mut workbook = Workbook::new();
     let worksheet = workbook.add_worksheet();
