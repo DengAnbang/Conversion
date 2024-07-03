@@ -1,13 +1,9 @@
 name: Rust CI
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
-
+  workflow_dispatch:
+  release:
+    types: [created]
 jobs:
   release:
     name: release ${{ matrix.target }}
