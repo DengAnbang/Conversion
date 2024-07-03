@@ -2,10 +2,12 @@ use std::collections::HashMap;
 use std::error::Error;
 use std::fs;
 use std::fs::{create_dir, File, remove_dir, remove_dir_all};
-use std::io::Write;
+use std::io::{BufWriter, Write};
 use std::path::Path;
 
 use calamine::{DataType, open_workbook, Reader, Xlsx};
+use quick_xml::events::{BytesDecl, BytesEnd, BytesStart, BytesText, Event};
+use quick_xml::Writer;
 use crate::bean::{Platform, XmlBean};
 
 pub fn form_xlsx(from_xlsx: String, reference_path: String) -> Result<(), Box<dyn Error>> {
@@ -65,8 +67,6 @@ pub fn form_xlsx(from_xlsx: String, reference_path: String) -> Result<(), Box<dy
             to[score].push(XmlBean { key: r.clone(), value: x.clone() })
         }
     }
-    println!("{:?}", to);
-
     return generating_files(to, platform);
 }
 
@@ -85,11 +85,10 @@ fn generating_files(scores: Vec<Vec<XmlBean>>, platform: Platform) -> Result<(),
 fn generating_java(scores: Vec<Vec<XmlBean>>) -> Result<(), Box<dyn Error>> {
     remove_dir_all("./java_file").ok();
     create_dir("./java_file").ok();
-    println!("{:?}", scores.len());
     for score in scores {
-        let string = score.get(0).unwrap().value.clone();
-        let string1 = format!("./java_file/{}.strings", string.unwrap());
-        let mut file: File = File::create(string1)?;
+        let file_name = score.get(0).unwrap().value.clone();
+        let file_path = format!("./java_file/{}.properties", file_name.unwrap());
+        let mut file: File = File::create(file_path)?;
         for bean in score.iter().skip(1) {
             let key = bean.key.clone();
             let value = bean.value.clone().unwrap_or("".to_string());
@@ -102,11 +101,10 @@ fn generating_java(scores: Vec<Vec<XmlBean>>) -> Result<(), Box<dyn Error>> {
 fn generating_ios(scores: Vec<Vec<XmlBean>>) -> Result<(), Box<dyn Error>> {
     remove_dir_all("./ios_file").ok();
     create_dir("./ios_file").ok();
-    println!("{:?}", scores.len());
     for score in scores {
-        let string = score.get(0).unwrap().value.clone();
-        let string1 = format!("./ios_file/{}.strings", string.unwrap());
-        let mut file: File = File::create(string1)?;
+        let file_name = score.get(0).unwrap().value.clone();
+        let file_path = format!("./ios_file/{}.strings", file_name.unwrap());
+        let mut file: File = File::create(file_path)?;
         for bean in score.iter().skip(1) {
             let key = bean.key.clone();
             let value = bean.value.clone().unwrap_or("".to_string());
@@ -117,5 +115,33 @@ fn generating_ios(scores: Vec<Vec<XmlBean>>) -> Result<(), Box<dyn Error>> {
 }
 
 fn generating_android(scores: Vec<Vec<XmlBean>>) -> Result<(), Box<dyn Error>> {
-    todo!()
+    remove_dir_all("./android_file").ok();
+    create_dir("./android_file").ok();
+    for score in scores {
+        let file_name = score.get(0).unwrap().value.clone();
+        let file_path = format!("./android_file/{}.xml", file_name.unwrap());
+        let mut file: File = File::create(file_path)?;
+        let writer = BufWriter::new(file);
+        // 创建 XML Writer
+        let mut xml_writer = Writer::new(writer);
+        // 写入 XML 声明
+        let decl = BytesDecl::new("1.0", Some("utf-8"), None);
+        xml_writer.write_event(Event::Decl(decl))?;
+        // 写入根元素开始标签
+        xml_writer.write_event(Event::Start(BytesStart::new("resources")))?;
+        for bean in score {
+            // 写入每个 string 元素
+            let mut elem = BytesStart::new("string");
+            elem.push_attribute(("name", bean.key.as_str()));
+            xml_writer.write_event(Event::Start(elem))?;
+            if let Some(value) = bean.value {
+                let _ = xml_writer.write_event(Event::Text(BytesText::new(value.as_str())));
+            }
+            xml_writer.write_event(Event::End(BytesEnd::new("string")))?;
+        }
+        // 写入根元素结束标签
+        xml_writer.write_event(Event::End(BytesEnd::new("resources")))?;
+    }
+
+    return Ok(());
 }

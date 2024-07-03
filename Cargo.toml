@@ -7,9 +7,12 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.5.7", features = ["derive"] }
-#读取xml
+#序列化
 serde = { version = "1.0.203", features = ["derive"] }
+#读取xml
 serde-xml-rs = "0.6.0"
+#写xml
+quick-xml = "0.35.0"
 #写入xlsx
 rust_xlsxwriter = "0.68.0"
 calamine = "0.25.0"
