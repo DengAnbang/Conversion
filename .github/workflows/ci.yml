@@ -56,13 +56,19 @@ jobs:
       - name: Run tests
         run: cargo test
 
-      - name: Install AWS CLI
+      - name: Install AWS CLI on Ubuntu and MacOS
+        if: runner.os != 'Windows'
         run: |
-          if [ $RUNNER_OS == "Windows" ]; then
-            choco install awscli
-          else
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            sudo apt-get update
             sudo apt-get install -y awscli
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            brew install awscli
           fi
+
+      - name: Install AWS CLI on Windows
+        if: runner.os == 'Windows'
+        run: choco install awscli
 
       - name: Upload to S3
         if: success()
