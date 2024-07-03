@@ -54,9 +54,27 @@ pub fn run(cli: Cli) -> Result<(), Box<dyn Error>> {
 
 #[cfg(test)]
 mod tests {
+    use std::fs::{remove_dir_all, remove_file};
     use super::*;
 
     #[test]
+    fn test_all() {
+        to_xlsx();
+        merge_xlsx();
+        form_xlsx_android();
+        form_xlsx_ios();
+        form_xlsx_java();
+        remove_dir_all("./java_file").ok();
+        remove_dir_all("./android_file").ok();
+        remove_dir_all("./ios_file").ok();
+        remove_file("to_android.xlsx").ok();
+        remove_file("to_ios.xlsx").ok();
+        remove_file("to_java.xlsx").ok();
+    }
+
+
+    #[test]
+    #[ignore]
     fn to_xlsx() {
         let result = run(crate::Cli {
             to_xlsx: vec!["./java/module1/messages.properties".parse().unwrap(), "./java/module2/messages.properties".parse().unwrap()],
@@ -82,6 +100,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn merge_xlsx() {
         let result = run(crate::Cli {
             to_xlsx: vec![],
@@ -94,6 +113,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn form_xlsx_android() {
         let result = run(crate::Cli {
             to_xlsx: vec![],
@@ -106,6 +126,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn form_xlsx_ios() {
         let result = run(crate::Cli {
             to_xlsx: vec![],
@@ -118,6 +139,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn form_xlsx_java() {
         let result = run(crate::Cli {
             to_xlsx: vec![],
