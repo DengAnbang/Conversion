@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 use std::error::Error;
-use std::fs;
-use std::fs::{create_dir, File, remove_dir, remove_dir_all};
+use std::fs::{create_dir, File, remove_dir_all};
 use std::io::{BufWriter, Write};
 use std::path::Path;
 
 use calamine::{DataType, open_workbook, Reader, Xlsx};
 use quick_xml::events::{BytesDecl, BytesEnd, BytesStart, BytesText, Event};
 use quick_xml::Writer;
+
 use crate::bean::{Platform, XmlBean};
 
 pub fn form_xlsx(from_xlsx: String, reference_path: String) -> Result<(), Box<dyn Error>> {
@@ -95,6 +95,7 @@ fn generating_java(scores: Vec<Vec<XmlBean>>) -> Result<(), Box<dyn Error>> {
             file.write(format!("{}={}\n", key, value).as_ref()).unwrap();
         }
     }
+    println!("生成成功,文件保存在:{}中", "./java_file");
     return Ok(());
 }
 
@@ -111,6 +112,7 @@ fn generating_ios(scores: Vec<Vec<XmlBean>>) -> Result<(), Box<dyn Error>> {
             file.write(format!("\"{}\" = \"{}\"\n", key, value).as_ref()).unwrap();
         }
     }
+    println!("生成成功,文件保存在:{}中", "./ios_file");
     return Ok(());
 }
 
@@ -120,7 +122,7 @@ fn generating_android(scores: Vec<Vec<XmlBean>>) -> Result<(), Box<dyn Error>> {
     for score in scores {
         let file_name = score.get(0).unwrap().value.clone();
         let file_path = format!("./android_file/{}.xml", file_name.unwrap());
-        let mut file: File = File::create(file_path)?;
+        let file: File = File::create(file_path)?;
         let writer = BufWriter::new(file);
         // 创建 XML Writer
         let mut xml_writer = Writer::new(writer);
@@ -142,6 +144,6 @@ fn generating_android(scores: Vec<Vec<XmlBean>>) -> Result<(), Box<dyn Error>> {
         // 写入根元素结束标签
         xml_writer.write_event(Event::End(BytesEnd::new("resources")))?;
     }
-
+    println!("生成成功,文件保存在:{}中", "./android_file");
     return Ok(());
 }

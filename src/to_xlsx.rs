@@ -72,6 +72,7 @@ fn java(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
     }
     remove_file(&platform.file_name).ok();
     workbook.save(&platform.file_name)?;
+    println!("生成成功:{}", platform.file_name);
     Ok(())
 }
 
@@ -134,6 +135,7 @@ fn ios(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
     }
     remove_file(&platform.file_name).ok();
     workbook.save(&platform.file_name)?;
+    println!("生成成功:{}", platform.file_name);
     Ok(())
 }
 
@@ -156,6 +158,7 @@ fn android(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
     }
     remove_file(&platform.file_name).ok();
     workbook.save(&platform.file_name)?;
+    println!("生成成功:{}", platform.file_name);
     Ok(())
 }
 

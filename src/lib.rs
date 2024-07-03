@@ -1,11 +1,9 @@
 use std::error::Error;
 
-use calamine::Reader;
-use clap::{Parser, ValueEnum};
-use serde::Deserialize;
+use clap::Parser;
+
 use crate::form_xlsx::form_xlsx;
 use crate::merge_xlsx::merge_xlsx;
-
 use crate::to_xlsx::to_xlsx;
 
 mod to_xlsx;
@@ -97,7 +95,6 @@ mod tests {
 
     #[test]
     fn form_xlsx_android() {
-
         let result = run(crate::Cli {
             to_xlsx: vec![],
             from_xlsx: Some("./merge_test.xlsx".parse().unwrap()),
@@ -107,9 +104,9 @@ mod tests {
         println!("{:?}", result);
         assert!(result.is_ok());
     }
+
     #[test]
     fn form_xlsx_ios() {
-
         let result = run(crate::Cli {
             to_xlsx: vec![],
             from_xlsx: Some("./merge_test.xlsx".parse().unwrap()),
@@ -119,9 +116,9 @@ mod tests {
         println!("{:?}", result);
         assert!(result.is_ok());
     }
+
     #[test]
     fn form_xlsx_java() {
-
         let result = run(crate::Cli {
             to_xlsx: vec![],
             from_xlsx: Some("./merge_test.xlsx".parse().unwrap()),
