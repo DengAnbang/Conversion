@@ -73,8 +73,7 @@ mod tests {
     }
 
 
-    #[test]
-    #[ignore]
+
     fn to_xlsx() {
         let result = run(crate::Cli {
             to_xlsx: vec!["./java/module1/messages.properties".parse().unwrap(), "./java/module2/messages.properties".parse().unwrap()],
@@ -99,8 +98,7 @@ mod tests {
         assert!(result.is_ok());
     }
 
-    #[test]
-    #[ignore]
+
     fn merge_xlsx() {
         let result = run(crate::Cli {
             to_xlsx: vec![],
@@ -112,8 +110,7 @@ mod tests {
         assert!(result.is_ok());
     }
 
-    #[test]
-    #[ignore]
+
     fn form_xlsx_android() {
         let result = run(crate::Cli {
             to_xlsx: vec![],
@@ -125,8 +122,7 @@ mod tests {
         assert!(result.is_ok());
     }
 
-    #[test]
-    #[ignore]
+
     fn form_xlsx_ios() {
         let result = run(crate::Cli {
             to_xlsx: vec![],
@@ -138,8 +134,6 @@ mod tests {
         assert!(result.is_ok());
     }
 
-    #[test]
-    #[ignore]
     fn form_xlsx_java() {
         let result = run(crate::Cli {
             to_xlsx: vec![],
