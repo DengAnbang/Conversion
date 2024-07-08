@@ -7,6 +7,7 @@ pub struct XmlBean {
     pub key: String,
     #[serde(rename = "$value")]
     pub value: Option<String>,
+
 }
 
 
@@ -56,39 +57,3 @@ impl Platform {
         return Platform { file_name: String::from("to_java.xlsx"), suffix: String::from("xml"), key: String::from("java_key"), col_num: 28 };
     }
 }
-
-
-// #[derive(Debug)]
-// pub enum Platform {
-//     Android {
-//         file_name: String,
-//         key: String,
-//         suffix: String,
-//         col_num: u32,
-//     },
-//     Ios {
-//         file_name: String,
-//         key: String,
-//         suffix: String,
-//         col_num: u32,
-//     },
-//     Java {
-//         file_name: String,
-//         key: String,
-//         suffix: String,
-//         col_num: u32,
-//     },
-// }
-//
-// impl crate::bean::Platform {
-//     pub fn new(suffix: String) -> crate::bean::Platform {
-//         return match suffix.as_str() {
-//             "xml" => crate::bean::Platform::Android { file_name: String::from("to_android.xlsx"), suffix: String::from("xml"), key: String::from("android_key"), col_num: 28 },
-//             "strings" => crate::bean::Platform::Ios { file_name: String::from("to_ios.xlsx"), suffix: String::from("xml"), key: String::from("ios_key"), col_num: 29 },
-//             "properties" => crate::bean::Platform::Java { file_name: String::from("to_java.xlsx"), suffix: String::from("xml"), key: String::from("java_key"), col_num: 30 },
-//             _ => {
-//                 panic!("暂不支持的文件格式!");
-//             }
-//         };
-//     }
-// }

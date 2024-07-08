@@ -16,23 +16,23 @@ mod form_xlsx;
 #[command(name = "Conversion")]
 #[command(author = "jiqimao")]
 #[command(version)]
-#[command(about = "哈哈哈", long_about = None)]
+#[command(about = "一个帮助Android,ios,java 国际化文件和xlsx之间的转换工具", long_about = None)]
 pub struct Cli {
     ///需要转换成xlsx的文件路径,可以是多个文件
     #[arg(value_enum, short, long, ignore_case = true)]
-    to_xlsx: Vec<String>,
+    pub to_xlsx: Vec<String>,
 
     ///将xlsx的文件还原成对应平台的数据,输入xlsx的文件的路径
     #[arg(value_enum, short, long, requires = "reference_path", ignore_case = true)]
-    from_xlsx: Option<String>,
+    pub from_xlsx: Option<String>,
 
     ///需要合并的xlsx的文件路径
     #[arg(value_enum, short, long, ignore_case = true)]
-    merge_xlsx: Vec<String>,
+    pub merge_xlsx: Vec<String>,
 
     ///需要参考的文件路径
     #[arg(short, long, requires = "from_xlsx", ignore_case = true)]
-    reference_path: Option<String>,
+    pub reference_path: Option<String>,
 
 }
 
@@ -52,98 +52,6 @@ pub fn run(cli: Cli) -> Result<(), Box<dyn Error>> {
 }
 
 
-#[cfg(test)]
-mod tests {
-    use std::fs::{remove_dir_all, remove_file};
-    use super::*;
 
-    #[test]
-    fn test_all() {
-        to_xlsx();
-        merge_xlsx();
-        form_xlsx_android();
-        form_xlsx_ios();
-        form_xlsx_java();
-        remove_dir_all("./java_file").ok();
-        remove_dir_all("./android_file").ok();
-        remove_dir_all("./ios_file").ok();
-        remove_file("to_android.xlsx").ok();
-        remove_file("to_ios.xlsx").ok();
-        remove_file("to_java.xlsx").ok();
-    }
-
-
-
-    fn to_xlsx() {
-        let result = run(crate::Cli {
-            to_xlsx: vec!["./java/module1/messages.properties".parse().unwrap(), "./java/module2/messages.properties".parse().unwrap()],
-            from_xlsx: None,
-            merge_xlsx: vec![],
-            reference_path: None,
-        });
-        assert!(result.is_ok());
-        let result = run(crate::Cli {
-            to_xlsx: vec!["./android/module1/values/strings.xml".parse().unwrap(), "./android/module2/values/strings.xml".parse().unwrap()],
-            from_xlsx: None,
-            merge_xlsx: vec![],
-            reference_path: None,
-        });
-        assert!(result.is_ok());
-        let result = run(crate::Cli {
-            to_xlsx: vec!["./ios/module1/Localizable.strings".parse().unwrap(), "./ios/module2/Localizable.strings".parse().unwrap()],
-            from_xlsx: None,
-            merge_xlsx: vec![],
-            reference_path: None,
-        });
-        assert!(result.is_ok());
-    }
-
-
-    fn merge_xlsx() {
-        let result = run(crate::Cli {
-            to_xlsx: vec![],
-            from_xlsx: None,
-            merge_xlsx: vec!["./to_android.xlsx".parse().unwrap(), "./to_ios.xlsx".parse().unwrap(), "./to_java.xlsx".parse().unwrap()],
-            reference_path: None,
-        });
-        println!("{:?}", result);
-        assert!(result.is_ok());
-    }
-
-
-    fn form_xlsx_android() {
-        let result = run(crate::Cli {
-            to_xlsx: vec![],
-            from_xlsx: Some("./merge_test.xlsx".parse().unwrap()),
-            merge_xlsx: vec![],
-            reference_path: Some("./to_android.xlsx".parse().unwrap()),
-        });
-        println!("{:?}", result);
-        assert!(result.is_ok());
-    }
-
-
-    fn form_xlsx_ios() {
-        let result = run(crate::Cli {
-            to_xlsx: vec![],
-            from_xlsx: Some("./merge_test.xlsx".parse().unwrap()),
-            merge_xlsx: vec![],
-            reference_path: Some("./to_ios.xlsx".parse().unwrap()),
-        });
-        println!("{:?}", result);
-        assert!(result.is_ok());
-    }
-
-    fn form_xlsx_java() {
-        let result = run(crate::Cli {
-            to_xlsx: vec![],
-            from_xlsx: Some("./merge_test.xlsx".parse().unwrap()),
-            merge_xlsx: vec![],
-            reference_path: Some("./to_java.xlsx".parse().unwrap()),
-        });
-        println!("{:?}", result);
-        assert!(result.is_ok());
-    }
-}
 
 
