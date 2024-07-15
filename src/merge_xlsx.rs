@@ -58,8 +58,8 @@ pub fn merge_xlsx(file_paths: Vec<String>) -> Result<(), Box<dyn Error>> {
             }
         }
     }
-    remove_file("../merge.xlsx").ok();
-    workbook.save("../merge.xlsx")?;
-    println!("合并成功,合并后的文件:{}", "../merge.xlsx");
+    remove_file("merge.xlsx").ok();
+    workbook.save("merge.xlsx")?;
+    println!("合并成功,合并后的文件:{}", "merge.xlsx");
     return Ok(());
 }
